@@ -1,5 +1,4 @@
 // Pikmin Bloom 搶蘑菇計時器 — Service Worker
-// Handles background notifications when the page is not focused.
 
 const scheduled = new Map() // id → { alertTimer, endTimer }
 
@@ -12,21 +11,18 @@ self.addEventListener('message', event => {
 
   if (data.type === 'SCHEDULE') {
     const { id, location, alertAt, endsAt, iconUrl } = data
-
-    // Cancel any existing timers for this id
     cancel(id)
 
     const now = Date.now()
-
     const alertDelay = alertAt - now
     const endDelay = endsAt - now
 
     const alertTimer = alertDelay > 0
-      ? setTimeout(() => showIfBackground(`alert-${id}`, '🍄 準備打菇！', `${location} 即將可以打！`, iconUrl), alertDelay)
+      ? setTimeout(() => showIfHidden(`alert-${id}`, '🍄 準備打菇！', `${location} 即將可以打！`, iconUrl), alertDelay)
       : null
 
     const endTimer = endDelay > 0
-      ? setTimeout(() => showIfBackground(`end-${id}`, '🍄 時間到！', `${location} 計時結束`, iconUrl), endDelay)
+      ? setTimeout(() => showIfHidden(`end-${id}`, '🍄 時間到！', `${location} 計時結束`, iconUrl), endDelay)
       : null
 
     scheduled.set(id, { alertTimer, endTimer })
@@ -46,11 +42,11 @@ function cancel(id) {
   }
 }
 
-async function showIfBackground(tag, title, body, icon) {
-  // Only show notification if no focused page is open
+async function showIfHidden(tag, title, body, icon) {
   const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-  const hasFocused = clients.some(c => c.focused)
-  if (hasFocused) return
+  // visibilityState 比 focused 更可靠：切到其他 App 時頁面為 hidden
+  const hasVisible = clients.some(c => c.visibilityState === 'visible')
+  if (hasVisible) return
 
   self.registration.showNotification(title, {
     body,
