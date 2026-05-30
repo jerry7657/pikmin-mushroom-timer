@@ -1,0 +1,17 @@
+{
+  "name": "搶蘑菇計時器",
+  "short_name": "搶蘑菇",
+  "description": "Pikmin Bloom 蘑菇戰計時工具",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1a0e",
+  "theme_color": "#0f1a0e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/mushroom-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
