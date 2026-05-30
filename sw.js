@@ -18,11 +18,11 @@ self.addEventListener('message', event => {
     const endDelay = endsAt - now
 
     const alertTimer = alertDelay > 0
-      ? setTimeout(() => showIfHidden(`alert-${id}`, '🍄 準備打菇！', `${location} 即將可以打！`, iconUrl), alertDelay)
+      ? setTimeout(() => show(`alert-${id}`, '🍄 準備打菇！', `${location} 即將可以打！`, iconUrl), alertDelay)
       : null
 
     const endTimer = endDelay > 0
-      ? setTimeout(() => showIfHidden(`end-${id}`, '🍄 時間到！', `${location} 計時結束`, iconUrl), endDelay)
+      ? setTimeout(() => show(`end-${id}`, '🍄 時間到！', `${location} 計時結束`, iconUrl), endDelay)
       : null
 
     scheduled.set(id, { alertTimer, endTimer })
@@ -42,12 +42,7 @@ function cancel(id) {
   }
 }
 
-async function showIfHidden(tag, title, body, icon) {
-  const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-  // visibilityState 比 focused 更可靠：切到其他 App 時頁面為 hidden
-  const hasVisible = clients.some(c => c.visibilityState === 'visible')
-  if (hasVisible) return
-
+function show(tag, title, body, icon) {
   self.registration.showNotification(title, {
     body,
     icon,
